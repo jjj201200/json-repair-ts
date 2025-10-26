@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Repair 浏览器示例</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .example {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    h3 {
+      margin-top: 0;
+      color: #2196F3;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .input {
+      color: #f92672;
+    }
+    .output {
+      color: #a6e22e;
+    }
+    button {
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover {
+      background: #1976D2;
+    }
+    #customInput {
+      width: 100%;
+      min-height: 100px;
+      font-family: 'Courier New', monospace;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    #customOutput {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 JSON Repair 浏览器示例</h1>
+
+    <p>这个示例演示了如何在浏览器环境中使用 json-repair-ts 修复各种格式错误的 JSON。</p>
+
+    <div class="example">
+      <h3>示例 1: 修复缺少引号的键</h3>
+      <pre class="input">输入: {name: "John", age: 30}</pre>
+      <button onclick="runExample1()">运行示例</button>
+      <pre id="output1" class="output" style="display:none;"></pre>
+    </div>
+
+    <div class="example">
+      <h3>示例 2: 修复尾随逗号</h3>
+      <pre class="input">输入: {"items": [1, 2, 3,], "total": 3,}</pre>
+      <button onclick="runExample2()">运行示例</button>
+      <pre id="output2" class="output" style="display:none;"></pre>
+    </div>
+
+    <div class="example">
+      <h3>示例 3: 修复单引号</h3>
+      <pre class="input">输入: {'name': 'John', 'city': 'New York'}</pre>
+      <button onclick="runExample3()">运行示例</button>
+      <pre id="output3" class="output" style="display:none;"></pre>
+    </div>
+
+    <div class="example">
+      <h3>示例 4: 修复缺少逗号</h3>
+      <pre class="input">输入: {"a": 1 "b": 2 "c": 3}</pre>
+      <button onclick="runExample4()">运行示例</button>
+      <pre id="output4" class="output" style="display:none;"></pre>
+    </div>
+
+    <div class="example">
+      <h3>自定义测试</h3>
+      <textarea id="customInput" placeholder='输入你的错误 JSON,例如: {name: "test", value: 123,}'></textarea>
+      <button onclick="runCustomTest()">修复 JSON</button>
+      <pre id="customOutput" class="output" style="display:none;"></pre>
+    </div>
+  </div>
+
+  <!-- 使用 UMD 格式加载,支持全局变量 JsonRepair -->
+  <script src="../dist/json-repair.umd.js"></script>
+
+  <script>
+    // 检查 JsonRepair 是否正确加载
+    console.log('JsonRepair loaded:', typeof JsonRepair !== 'undefined');
+    console.log('Available methods:', Object.keys(JsonRepair));
+
+    function runExample1() {
+      const input = '{name: "John", age: 30}';
+      const result = JsonRepair.repairJson(input);
+      const output = document.getElementById('output1');
+      output.textContent = '输出: ' + result;
+      output.style.display = 'block';
+      console.log('Example 1:', result);
+    }
+
+    function runExample2() {
+      const input = '{"items": [1, 2, 3,], "total": 3,}';
+      const result = JsonRepair.repairJson(input);
+      const output = document.getElementById('output2');
+      output.textContent = '输出: ' + result;
+      output.style.display = 'block';
+      console.log('Example 2:', result);
+    }
+
+    function runExample3() {
+      const input = "{'name': 'John', 'city': 'New York'}";
+      const result = JsonRepair.repairJson(input);
+      const output = document.getElementById('output3');
+      output.textContent = '输出: ' + result;
+      output.style.display = 'block';
+      console.log('Example 3:', result);
+    }
+
+    function runExample4() {
+      const input = '{"a": 1 "b": 2 "c": 3}';
+      const result = JsonRepair.repairJson(input);
+      const output = document.getElementById('output4');
+      output.textContent = '输出: ' + result;
+      output.style.display = 'block';
+      console.log('Example 4:', result);
+    }
+
+    function runCustomTest() {
+      const input = document.getElementById('customInput').value.trim();
+      const output = document.getElementById('customOutput');
+
+      if (!input) {
+        output.textContent = '请输入 JSON 字符串';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const result = JsonRepair.repairJson(input);
+        output.textContent = '修复后的 JSON:\n' + result;
+        output.style.display = 'block';
+        console.log('Custom test result:', result);
+      } catch (error) {
+        output.textContent = '错误: ' + error.message;
+        output.style.display = 'block';
+        console.error('Error:', error);
+      }
+    }
+
+    // 测试环境检测
+    console.log('Environment test:');
+    console.log('- Running in browser:', typeof window !== 'undefined');
+    console.log('- JsonRepair available:', typeof JsonRepair !== 'undefined');
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{
+  "name": "json-repair-ts",
+  "version": "1.1.1",
+  "description": "TypeScript implementation of json_repair - repairs invalid JSON strings, supports CommonJS, ES modules, and universal browser/Node.js compatibility",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/json-repair.esm.js",
+      "require": "./dist/json-repair.umd.js",
+      "default": "./dist/json-repair.umd.js"
+    },
+    "./umd": "./dist/json-repair.umd.js",
+    "./esm": "./dist/json-repair.esm.js",
+    "./package.json": "./package.json"
+  },
+  "browser": {
+    "./dist/index.js": "./dist/json-repair.umd.js",
+    "fs": false
+  },
+  "unpkg": "./dist/json-repair.umd.min.js",
+  "jsdelivr": "./dist/json-repair.umd.min.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -p tsconfig.esm.json && node -e \"const fs=require('fs');const path=require('path');const src=path.join('dist-esm','index.js');const dest=path.join('dist','index.mjs');fs.copyFileSync(src,dest);fs.rmSync('dist-esm',{recursive:true,force:true});\"",
+    "build:bundle": "node build-bundle.cjs",
+    "build:all": "npm run build && npm run build:bundle",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build:all",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "json",
+    "repair",
+    "fix",
+    "parse",
+    "parser",
+    "typescript",
+    "json-repair",
+    "json-parser",
+    "malformed-json",
+    "broken-json",
+    "esm",
+    "es-modules",
+    "umd",
+    "browser",
+    "nodejs",
+    "universal"
+  ],
+  "author": "jjj201200",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjj201200/json-repair-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjj201200/json-repair-ts/issues"
+  },
+  "homepage": "https://github.com/jjj201200/json-repair-ts#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "esbuild": "^0.25.11",
+    "typescript": "^5.9.3"
+  }
+}

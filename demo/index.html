@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Repair 测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: #fff;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 16px;
+            gap: 16px;
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            font-size: 14px;
+            color: #666;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            resize: none;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        .output {
+            flex: 1;
+            padding: 16px;
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .log-panel {
+            height: 180px;
+            margin: 0 16px 16px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .log-content {
+            flex: 1;
+            padding: 12px;
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            background: #fafafa;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            color: #666;
+        }
+
+        .log-entry.error {
+            color: #d32f2f;
+        }
+
+        .log-entry.success {
+            color: #388e3c;
+        }
+
+        .log-entry.info {
+            color: #1976d2;
+        }
+
+        .button-group {
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #1976d2;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1565c0;
+        }
+
+        button.secondary {
+            background: #757575;
+        }
+
+        button.secondary:hover {
+            background: #616161;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>JSON Repair 在线测试工具</h1>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">输入（待修复的 JSON）</div>
+            <textarea id="input" placeholder='输入需要修复的 JSON，例如：{name: "test", value: 123,'></textarea>
+            <div class="button-group">
+                <button onclick="repairJSON()">修复 JSON</button>
+                <button class="secondary" onclick="clearInput()">清空</button>
+                <button class="secondary" onclick="loadExample()">加载示例</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">输出（修复后的 JSON）</div>
+            <div id="output" class="output">等待输入...</div>
+            <div class="button-group">
+                <button onclick="copyOutput()">复制结果</button>
+                <button class="secondary" onclick="formatOutput()">格式化</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="log-panel">
+        <div class="panel-header">日志</div>
+        <div id="log" class="log-content"></div>
+    </div>
+
+    <!-- 引入 JSON Repair 浏览器版本库 (IIFE 格式，自动暴露到全局 JsonRepair) -->
+    <script src="../dist/json-repair.bundle.js"></script>
+
+    <script>
+
+        window.repairJSON = function() {
+            const input = document.getElementById('input').value.trim();
+            const output = document.getElementById('output');
+
+            if (!input) {
+                addLog('请输入需要修复的 JSON', 'error');
+                return;
+            }
+
+            addLog('开始修复 JSON...', 'info');
+
+            try {
+                // 使用 json-repair 库进行修复
+                // returnObjects: true 返回 JSON 对象，false 返回字符串
+                const result = JsonRepair.repairJson(input, { returnObjects: true });
+                const formatted = JSON.stringify(result, null, 2);
+                output.textContent = formatted;
+                addLog('修复成功！', 'success');
+            } catch (error) {
+                output.textContent = `错误：${error.message}`;
+                addLog(`修复失败：${error.message}`, 'error');
+            }
+        };
+
+        window.clearInput = function() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').textContent = '等待输入...';
+            addLog('已清空输入', 'info');
+        };
+
+        window.loadExample = function() {
+            const example = `{name: "测试", value: 123, items: ['a', 'b', 'c',], active: true,}`;
+            document.getElementById('input').value = example;
+            addLog('已加载示例数据', 'info');
+        };
+
+        window.copyOutput = function() {
+            const output = document.getElementById('output').textContent;
+            if (output === '等待输入...') {
+                addLog('没有可复制的内容', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(output).then(() => {
+                addLog('已复制到剪贴板', 'success');
+            }).catch(err => {
+                addLog('复制失败：' + err.message, 'error');
+            });
+        };
+
+        window.formatOutput = function() {
+            const output = document.getElementById('output');
+            const text = output.textContent;
+            if (text === '等待输入...') return;
+
+            try {
+                const parsed = JSON.parse(text);
+                output.textContent = JSON.stringify(parsed, null, 2);
+                addLog('已格式化输出', 'success');
+            } catch (e) {
+                addLog('格式化失败：输出不是有效的 JSON', 'error');
+            }
+        };
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString('zh-CN');
+            entry.textContent = `[${time}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // 初始日志
+        addLog('JSON Repair 测试工具已就绪', 'info');
+    </script>
+</body>
+</html>
